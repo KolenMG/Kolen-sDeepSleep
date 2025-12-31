@@ -239,4 +239,4 @@ update-checker:
   notify-admins: true
   
   # GitHub repository (format: "username/repository")
-  github-repo: "YourUsername/KolensDeepSleep"
+  github-repo: "KolenMG/Kolen-sDeepSleep"
