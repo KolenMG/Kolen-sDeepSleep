@@ -1,0 +1,242 @@
+# ========================================
+# Kolen's DeepSleep Configuration
+# ========================================
+
+# General Settings
+general:
+  # Enable debug logging
+  debug: false
+  
+  # Permission node for /bed command
+  permission: "deepsleep.bed"
+  
+  # Bed color (RED, BLUE, GREEN, etc.)
+  bed-color: "RED"
+
+# Worlds Configuration
+worlds:
+  # Enable sleep mechanics in these worlds
+  enabled-worlds:
+    - "world"
+    - "world_the_end"
+  
+  # Per-world overrides
+  overrides:
+    world:
+      threshold-type: "percentage"
+      threshold-value: 50
+    world_the_end:
+      threshold-type: "fixed"
+      threshold-value: 1
+
+# Command Restrictions
+restrictions:
+  # Require player to be on ground
+  require-on-ground: true
+  
+  # Block if player is flying
+  block-flying: true
+  
+  # Block if player is swimming
+  block-swimming: true
+  
+  # Block if player is gliding
+  block-gliding: true
+  
+  # Block if player is in vehicle
+  block-in-vehicle: true
+  
+  # Combat settings
+  combat:
+    enabled: true
+    # Time in seconds after taking damage before /bed is allowed
+    timeout: 10
+  
+  # Nearby hostile mobs check
+  hostile-mobs:
+    enabled: true
+    # Radius to check for hostile mobs
+    radius: 16
+  
+  # Region protection checks
+  regions:
+    # Check WorldGuard regions
+    worldguard: true
+    # Block in claimed land
+    claims: true
+
+# Cooldown System
+cooldown:
+  # Enable command cooldown
+  enabled: true
+  # Cooldown time in seconds
+  duration: 60
+  # Bypass permission: deepsleep.bypass.cooldown
+  
+  # Per-night usage limit
+  per-night-limit:
+    enabled: false
+    max-uses: 3
+
+# Bed Placement
+placement:
+  # Search radius for valid placement spot
+  search-radius: 3
+  
+  # Block bed placement near these blocks
+  blocked-blocks:
+    - "LAVA"
+    - "FIRE"
+    - "MAGMA_BLOCK"
+    - "SWEET_BERRY_BUSH"
+    - "CACTUS"
+
+# Sleep System
+sleep:
+  # Threshold type: "fixed" or "percentage"
+  threshold-type: "percentage"
+  
+  # Threshold value (number of players or percentage)
+  threshold-value: 50
+  # NEW: Track regular beds too (not just /bed command)
+  track-regular-beds: true
+  # Count AFK players as eligible
+  count-afk: false
+  
+  # Count vanished players as eligible
+  count-vanished: false
+  
+  # Count spectators as eligible
+  count-spectators: false
+  
+  # Night time range (in Minecraft ticks, 0-24000)
+  night-range:
+    start: 12541
+    end: 23458
+
+# Night Skip Animation
+animation:
+  # Enable smooth time transition
+  enabled: true
+  
+  # Speed multiplier (higher = faster)
+  speed: 100
+  
+  # Ticks between time updates
+  interval: 1
+  
+  # Clear weather after skip
+  clear-weather: true
+  
+  # Thunder settings
+  clear-thunder: true
+
+# Wake-up Effects
+effects:
+  # Enable wake-up effects
+  enabled: true
+  
+  # Effects to apply (duration in seconds, amplifier)
+  effects-list:
+    REGENERATION:
+      duration: 5
+      amplifier: 0
+    SATURATION:
+      duration: 3
+      amplifier: 0
+
+# Progress Display
+display:
+  # Display type: "action_bar", "boss_bar", "chat", "none"
+  type: "action_bar"
+  
+  # Update interval in ticks
+  update-interval: 20
+  
+  # Boss bar settings (if type is boss_bar)
+  boss-bar:
+    color: "BLUE"
+    style: "PROGRESS"
+
+# Sounds
+sounds:
+  # Play sound on bed spawn
+  bed-spawn:
+    enabled: true
+    sound: "BLOCK_WOOL_PLACE"
+    volume: 1.0
+    pitch: 1.0
+  
+  # Play sound on sleep start
+  sleep-start:
+    enabled: true
+    sound: "BLOCK_BED_USE"
+    volume: 1.0
+    pitch: 1.0
+  
+  # Play sound on wake up
+  wake-up:
+    enabled: true
+    sound: "ENTITY_PLAYER_LEVELUP"
+    volume: 0.5
+    pitch: 1.5
+
+# Conflict Detection
+conflict-detection:
+  # Enable automatic detection of conflicting plugins
+  enabled: true
+  
+  # Known sleep plugins to detect
+  detect-plugins:
+    - "BetterSleeping"
+    - "SleepMost"
+    - "PhantomSMP"
+    - "SinglePlayerSleep"
+
+# Integration Hooks
+hooks:
+  # Enable PlaceholderAPI integration
+  placeholderapi: true
+  
+  # Enable WorldGuard integration
+  worldguard: true
+  
+  # AFK plugin detection (Essentials, CMI, etc.)
+  afk-detection: true
+  
+# Visual Effects Configuration
+visual-effects:
+  # Particle Effects
+  particles:
+    bed-spawn: true        # Sparkles when bed is placed
+    sleeping: true         # Z particles above sleeping players
+    wake-up: true          # Sun rays when waking up
+    
+  # Time Display During Night Skip
+  time-display:
+    enabled: true
+    # Title format (supports MiniMessage formatting)
+    title-format: "<gold>⏰ %time%</gold>"
+    # Subtitle format
+    subtitle-format: "<aqua>💤 %sleeping%/%eligible% sleeping | %percentage%% complete</aqua>"
+    
+  # Morning Message
+  morning-message:
+    enabled: true
+    # Title when waking up
+    title: "<gradient:yellow:gold>☀ Good Morning!</gradient>"
+    # Subtitle when waking up
+    subtitle: "<green>You slept well!</green>"
+    # Show detailed chat message
+    chat-details: true
+    
+# Update Checker
+update-checker:
+  # Enable automatic update checking
+  enabled: true
+  
+  # Notify admins when they join if update is available
+  notify-admins: true
+  
+  # GitHub repository (format: "username/repository")
+  github-repo: "YourUsername/KolensDeepSleep"

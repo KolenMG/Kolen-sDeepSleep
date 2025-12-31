@@ -1,0 +1,73 @@
+name: KolensDeepSleep
+version: '${project.version}'
+main: com.kolensdeepsleep.KolensDeepSleep
+api-version: '1.21'
+author: Kolen
+description: A sleep plugin with temporary beds and smooth night skip animation
+website: https://github.com/kolen/deepsleep
+
+softdepend:
+  - WorldGuard
+  - PlaceholderAPI
+  - Essentials
+  - CMI
+
+commands:
+  bed:
+    description: Spawn a temporary bed and sleep
+    usage: /bed
+    aliases: [sleep, rest]
+    permission: deepsleep.bed
+    
+  deepsleep:
+    description: Admin commands for DeepSleep
+    usage: /deepsleep <reload|status|skip|cancel|debug>
+    aliases: [ds, dsleep]
+    permission: deepsleep.admin
+
+permissions:
+  deepsleep.bed:
+    description: Allows using the /bed command
+    default: true
+    
+  deepsleep.bypass.cooldown:
+    description: Bypass bed command cooldown
+    default: op
+    
+  deepsleep.bypass.combat:
+    description: Bypass combat restriction
+    default: op
+    
+  deepsleep.bypass.restrictions:
+    description: Bypass all placement restrictions
+    default: op
+    
+  deepsleep.admin:
+    description: Access to admin commands
+    default: op
+    children:
+      deepsleep.admin.reload: true
+      deepsleep.admin.status: true
+      deepsleep.admin.skip: true
+      deepsleep.admin.cancel: true
+      deepsleep.admin.debug: true
+      
+  deepsleep.admin.reload:
+    description: Reload plugin configuration
+    default: op
+    
+  deepsleep.admin.status:
+    description: View sleep status
+    default: op
+    
+  deepsleep.admin.skip:
+    description: Force night skip
+    default: op
+    
+  deepsleep.admin.cancel:
+    description: Cancel ongoing night skip
+    default: op
+    
+  deepsleep.admin.debug:
+    description: Toggle debug mode
+    default: op

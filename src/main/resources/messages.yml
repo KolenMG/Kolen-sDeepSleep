@@ -1,0 +1,91 @@
+# ========================================
+# Kolen's DeepSleep Messages
+# Supports MiniMessage formatting
+# ========================================
+
+prefix: "<gradient:#3b82f6:#8b5cf6>[KolenDeepSleep]</gradient> "
+
+# Command Messages
+commands:
+  bed:
+    success: "<green>Bed spawned! Sweet dreams...</green>"
+    cooldown: "<red>You must wait {time} before using /bed again.</red>"
+    per-night-limit: "<red>You've reached the maximum uses per night ({uses}/{max}).</red>"
+    
+  admin:
+    reload: "<green>Configuration reloaded successfully!</green>"
+    status: "<aqua>Sleep Status:</aqua> {sleeping}/{eligible} players sleeping ({percentage}%)"
+    skip-forced: "<green>Night skip forced!</green>"
+    skip-cancelled: "<yellow>Night skip cancelled.</yellow>"
+    no-skip-active: "<red>No night skip is currently active.</red>"
+    debug-enabled: "<green>Debug mode enabled.</green>"
+    debug-disabled: "<yellow>Debug mode disabled.</yellow>"
+    
+  no-permission: "<red>You don't have permission to use this command.</red>"
+  player-only: "<red>This command can only be used by players.</red>"
+  invalid-usage: "<red>Invalid usage. Use: {usage}</red>"
+
+# Error Messages
+errors:
+  not-on-ground: "<red>You must be on the ground to use /bed!</red>"
+  flying: "<red>You cannot use /bed while flying!</red>"
+  swimming: "<red>You cannot use /bed while swimming!</red>"
+  gliding: "<red>You cannot use /bed while gliding!</red>"
+  in-vehicle: "<red>You cannot use /bed while in a vehicle!</red>"
+  in-combat: "<red>You cannot use /bed while in combat! Wait {time}.</red>"
+  hostile-mobs: "<red>You cannot sleep with hostile mobs nearby!</red>"
+  protected-region: "<red>You cannot place a bed in this protected area!</red>"
+  claimed-land: "<red>You cannot place a bed in claimed land!</red>"
+  world-disabled: "<red>Sleep mechanics are disabled in this world!</red>"
+  no-safe-spot: "<red>No safe spot found to place a bed nearby!</red>"
+  already-sleeping: "<red>You are already sleeping!</red>"
+  not-night: "<red>You can only sleep at night!</red>"
+
+# Sleep Progress Messages
+sleep:
+  progress:
+    action-bar: "<gradient:#60a5fa:#a78bfa>💤 Sleeping: {sleeping}/{eligible} ({percentage}%)</gradient>"
+    boss-bar: "Sleeping: {sleeping}/{eligible} players"
+    chat: "<gray>Sleeping:</gray> <aqua>{sleeping}/{eligible}</aqua> <gray>players</gray> <yellow>({percentage}%)</yellow>"
+  
+  player-entered: "<gray>{player} is now sleeping. ({sleeping}/{eligible})</gray>"
+  player-left: "<gray>{player} is no longer sleeping. ({sleeping}/{eligible})</gray>"
+  threshold-reached: "<green><bold>✓</bold> Sleep threshold reached! Skipping night...</green>"
+  
+  wake-up: "<gradient:#fbbf24:#f59e0b>☀ Good morning!</gradient>"
+  morning-details: "<gray>━━━━━━━━━━━━━━━━━━━━━━━━━━━</gray><newline><yellow>☀</yellow> <gold><bold>Morning Report</bold></gold><newline><green>✓</green> <white>You slept through the night</white><newline><aqua>💤</aqua> <white>Sleep was successful!</white><newline><gray>━━━━━━━━━━━━━━━━━━━━━━━━━━━</gray>"
+
+# Animation Messages
+animation:
+  starting: "<gray>Night skip starting...</gray>"
+  complete: "<green>Night skipped successfully!</green>"
+
+# Debug Messages (only shown when debug is enabled)
+debug:
+  bed-spawned: "[DEBUG] Bed spawned at {x}, {y}, {z} in {world}"
+  bed-removed: "[DEBUG] Bed removed at {x}, {y}, {z} in {world}"
+  player-sleep-start: "[DEBUG] {player} started sleeping"
+  player-sleep-end: "[DEBUG] {player} stopped sleeping"
+  threshold-check: "[DEBUG] Threshold check: {sleeping}/{eligible} ({percentage}%) - Required: {threshold}"
+  combat-tagged: "[DEBUG] {player} entered combat"
+  combat-expired: "[DEBUG] {player} combat timer expired"
+  cleanup-performed: "[DEBUG] Cleanup performed: {count} beds removed"
+
+# Warning Messages
+warnings:
+  conflict-detected: "<yellow>⚠ Warning: Conflicting plugin detected ({plugin}). This may cause issues!</yellow>"
+  hook-failed: "<yellow>⚠ Failed to hook into {plugin}. Some features may not work.</yellow>"
+  config-error: "<red>⚠ Configuration error: {error}</red>"
+
+# Placeholders
+placeholders:
+  # {player} - Player name
+  # {sleeping} - Number of sleeping players
+  # {eligible} - Number of eligible players
+  # {percentage} - Percentage of players sleeping
+  # {threshold} - Required threshold
+  # {time} - Formatted time remaining
+  # {uses} - Current uses
+  # {max} - Maximum uses
+  # {x}, {y}, {z} - Coordinates
+  # {world} - World name
