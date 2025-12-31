@@ -7,7 +7,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.*;
-
+import org.bukkit.event.player.PlayerJoinEvent;
 /**
  * Handles player-related events for sleep mechanics
  */
@@ -156,5 +156,36 @@ public class PlayerListener implements Listener {
         
         // Remove temporary bed
         plugin.getBedManager().removeBed(player.getUniqueId());
+    }
+    /**
+     * Notify admins of available updates on join
+     */
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onAdminJoin(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+        
+        if (!player.hasPermission("deepsleep.admin")) {
+            return;
+        }
+        
+        if (!plugin.getConfig().getBoolean("update-checker.notify-admins", true)) {
+            return;
+        }
+        
+        // Check if update is available and notify after a short delay
+        if (plugin.getUpdateChecker() != null && plugin.getUpdateChecker().isUpdateAvailable()) {
+            plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                if (player.isOnline()) {
+                    player.sendMessage("§e§l[DeepSleep] §6A new version is available!");
+                    player.sendMessage("§7Current: §f" + plugin.getUpdateChecker().getCurrentVersion() + 
+                                     " §7→ Latest: §a" + plugin.getUpdateChecker().getLatestVersion());
+                    
+                    String repo = plugin.getConfig().getString("update-checker.github-repo", "");
+                    if (!repo.isEmpty()) {
+                        player.sendMessage("§7Download: §bhttps://github.com/" + repo + "/releases");
+                    }
+                }
+            }, 40L); // 2 second delay
+        }
     }
 }

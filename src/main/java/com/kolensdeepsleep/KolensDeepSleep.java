@@ -12,6 +12,7 @@ import com.kolensdeepsleep.util.MessageUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
+import com.kolensdeepsleep.util.UpdateChecker;
 
 import java.util.List;
 
@@ -24,6 +25,7 @@ public final class KolensDeepSleep extends JavaPlugin {
     // Utility classes
     private ConfigUtil configUtil;
     private MessageUtil messageUtil;
+    private UpdateChecker updateChecker;
     
     // Managers
     private BedManager bedManager;
@@ -45,7 +47,11 @@ public final class KolensDeepSleep extends JavaPlugin {
         // Load utilities
         configUtil = new ConfigUtil(this);
         messageUtil = new MessageUtil(this);
-        
+
+        String githubRepo = getConfig().getString("update-checker.github-repo", "YourUsername/KolensDeepSleep");
+        updateChecker = new UpdateChecker(this, githubRepo);
+        updateChecker.checkForUpdates();
+
         // Load managers
         loadManagers();
         
@@ -225,4 +231,8 @@ public final class KolensDeepSleep extends JavaPlugin {
     public VisualEffectsManager getVisualEffectsManager() {
         return visualEffectsManager;
     }
+    public UpdateChecker getUpdateChecker() {
+        return updateChecker;
+    }	
+
 }
