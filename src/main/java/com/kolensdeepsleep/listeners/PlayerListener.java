@@ -157,8 +157,10 @@ public class PlayerListener implements Listener {
         // Remove temporary bed
         plugin.getBedManager().removeBed(player.getUniqueId());
     }
+    
     /**
      * Notify admins of available updates on join
+     * FIXED: Better synchronization with update checker
      */
     @EventHandler(priority = EventPriority.MONITOR)
     public void onAdminJoin(PlayerJoinEvent event) {
@@ -172,20 +174,35 @@ public class PlayerListener implements Listener {
             return;
         }
         
-        // Check if update is available and notify after a short delay
-        if (plugin.getUpdateChecker() != null && plugin.getUpdateChecker().isUpdateAvailable()) {
-            plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-                if (player.isOnline()) {
+        // Wait longer to ensure update check has completed
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+            if (!player.isOnline()) {
+                return;
+            }
+            
+            // Check if update checker has finished and found an update
+            if (plugin.getUpdateChecker() != null && plugin.getUpdateChecker().hasChecked()) {
+                if (plugin.getUpdateChecker().isUpdateAvailable()) {
                     player.sendMessage("§e§l[DeepSleep] §6A new version is available!");
                     player.sendMessage("§7Current: §f" + plugin.getUpdateChecker().getCurrentVersion() + 
                                      " §7→ Latest: §a" + plugin.getUpdateChecker().getLatestVersion());
                     
-                    String repo = plugin.getConfig().getString("update-checker.github-repo", "");
-                    if (!repo.isEmpty()) {
+                    String repo = plugin.getConfig().getString("update-checker.github-repo", "KolenMG/Kolen-sDeepSleep");
+                    player.sendMessage("§7Download: §bhttps://github.com/" + repo + "/releases");
+                }
+            } else if (plugin.getUpdateChecker() != null && !plugin.getUpdateChecker().hasChecked()) {
+                // Update check is still in progress, schedule another check
+                plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                    if (player.isOnline() && plugin.getUpdateChecker().isUpdateAvailable()) {
+                        player.sendMessage("§e§l[DeepSleep] §6A new version is available!");
+                        player.sendMessage("§7Current: §f" + plugin.getUpdateChecker().getCurrentVersion() + 
+                                         " §7→ Latest: §a" + plugin.getUpdateChecker().getLatestVersion());
+                        
+                        String repo = plugin.getConfig().getString("update-checker.github-repo", "KolenMG/Kolen-sDeepSleep");
                         player.sendMessage("§7Download: §bhttps://github.com/" + repo + "/releases");
                     }
-                }
-            }, 40L); // 2 second delay
-        }
+                }, 60L); // Check again after 3 more seconds
+            }
+        }, 100L); // 5 second delay (was 2 seconds)
     }
 }

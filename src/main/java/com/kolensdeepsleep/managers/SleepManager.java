@@ -28,6 +28,9 @@ public class SleepManager {
         
         // Start day time cleanup task
         startDayCleanupTask();
+        
+        // Start cleanup task for invalid entries
+        startCleanupTask();
     }
     
     /**
@@ -51,24 +54,33 @@ public class SleepManager {
     
     /**
      * Remove a player from sleeping list
+     * FIXED: Better cleanup and validation
      */
     public void removeSleepingPlayer(Player player) {
         World world = player.getWorld();
         Set<UUID> sleeping = sleepingPlayers.get(world);
         
         if (sleeping != null && sleeping.remove(player.getUniqueId())) {
-            // Broadcast leave message
-            broadcastSleepUpdate(world, player.getName(), false);
+            // Broadcast leave message only if the world still has other players
+            if (!sleeping.isEmpty() || world.getPlayers().size() > 1) {
+                broadcastSleepUpdate(world, player.getName(), false);
+            }
             
             // Debug
             Map<String, String> placeholders = new HashMap<>();
             placeholders.put("player", player.getName());
             plugin.getMessageUtil().debug("debug.player-sleep-end", placeholders);
+            
+            // Remove empty world entry
+            if (sleeping.isEmpty()) {
+                sleepingPlayers.remove(world);
+            }
         }
     }
     
     /**
      * Check if threshold is met for night skip
+     * FIXED: Better validation
      */
     private void checkThreshold(World world) {
         if (skipInProgress.getOrDefault(world, false)) {
@@ -79,10 +91,18 @@ public class SleepManager {
             return; // Not night time
         }
         
+        // Validate world still exists
+        if (!plugin.getServer().getWorlds().contains(world)) {
+            sleepingPlayers.remove(world);
+            return;
+        }
+        
         int sleeping = getSleepingCount(world);
         int eligible = getEligiblePlayerCount(world);
         
         if (eligible == 0) {
+            // No eligible players, clear sleeping list
+            sleepingPlayers.remove(world);
             return;
         }
         
@@ -132,25 +152,58 @@ public class SleepManager {
     
     /**
      * Initiate night skip
+     * FIXED: Better safeguards against stuck states
      */
     private void initiateNightSkip(World world) {
+        // Double-check we're not already skipping
+        if (skipInProgress.getOrDefault(world, false)) {
+            plugin.getLogger().warning("Attempted to initiate night skip while already in progress for " + world.getName());
+            return;
+        }
+        
+        // Validate world
+        if (!plugin.getServer().getWorlds().contains(world)) {
+            plugin.getLogger().warning("Attempted to skip night in non-existent world");
+            return;
+        }
+        
         skipInProgress.put(world, true);
         
         // Broadcast threshold reached message
         Map<String, String> placeholders = new HashMap<>();
         plugin.getMessageUtil().broadcast("sleep.threshold-reached", placeholders);
         
-        // Start animation
+        // Start animation with completion callback
         plugin.getAnimationManager().startNightSkip(world, () -> {
             completeNightSkip(world);
         });
+        
+        // Failsafe: Force complete after 30 seconds if animation gets stuck
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            if (skipInProgress.getOrDefault(world, false)) {
+                plugin.getLogger().warning("Night skip animation timed out for " + world.getName() + ", forcing completion");
+                completeNightSkip(world);
+            }
+        }, 600L); // 30 seconds
     }
     
     /**
      * Complete night skip
+     * FIXED: Safer completion with validation
      */
     private void completeNightSkip(World world) {
+        // Check if skip was already completed
+        if (!skipInProgress.getOrDefault(world, false)) {
+            return;
+        }
+        
         skipInProgress.put(world, false);
+        
+        // Validate world still exists
+        if (!plugin.getServer().getWorlds().contains(world)) {
+            sleepingPlayers.remove(world);
+            return;
+        }
         
         // Wake up all sleeping players
         Set<UUID> sleeping = new HashSet<>(sleepingPlayers.getOrDefault(world, new HashSet<>()));
@@ -384,6 +437,38 @@ public class SleepManager {
     }
     
     /**
+     * Start cleanup task - removes invalid entries periodically
+     * NEW: Prevents memory leaks and stuck states
+     */
+    private void startCleanupTask() {
+        Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            // Clean up sleeping players who are no longer online or in bed
+            for (World world : new HashSet<>(sleepingPlayers.keySet())) {
+                Set<UUID> sleeping = sleepingPlayers.get(world);
+                if (sleeping != null) {
+                    sleeping.removeIf(uuid -> {
+                        Player player = Bukkit.getPlayer(uuid);
+                        return player == null || !player.isOnline() || !player.isSleeping();
+                    });
+                    
+                    // Remove empty world entries
+                    if (sleeping.isEmpty()) {
+                        sleepingPlayers.remove(world);
+                    }
+                }
+            }
+            
+            // Reset stuck skip-in-progress flags
+            for (World world : new HashSet<>(skipInProgress.keySet())) {
+                if (skipInProgress.get(world) && !plugin.getAnimationManager().isAnimationActive(world)) {
+                    plugin.getLogger().warning("Detected stuck skip-in-progress flag for world: " + world.getName());
+                    skipInProgress.put(world, false);
+                }
+            }
+        }, 200L, 200L); // Every 10 seconds
+    }
+    
+    /**
      * Display sleep progress
      */
     private void displayProgress(World world) {
@@ -446,8 +531,16 @@ public class SleepManager {
     
     /**
      * Cleanup on disable
+     * FIXED: Better cleanup with animation cancellation
      */
     public void cleanup() {
+        // Cancel all ongoing animations
+        for (World world : new HashSet<>(skipInProgress.keySet())) {
+            if (skipInProgress.get(world)) {
+                plugin.getAnimationManager().cancelNightSkip(world);
+            }
+        }
+        
         sleepingPlayers.clear();
         skipInProgress.clear();
     }

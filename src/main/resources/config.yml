@@ -232,11 +232,6 @@ visual-effects:
     
 # Update Checker
 update-checker:
-  # Enable automatic update checking
   enabled: true
-  
-  # Notify admins when they join if update is available
   notify-admins: true
-  
-  # GitHub repository (format: "username/repository")
   github-repo: "KolenMG/Kolen-sDeepSleep"

@@ -45,6 +45,7 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
             case "skip" -> handleSkip(sender, args);
             case "cancel" -> handleCancel(sender, args);
             case "debug" -> handleDebug(sender);
+            case "version" -> handleVersion(sender);
             default -> sendUsage(sender, label);
         }
         
@@ -193,6 +194,34 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
     }
     
     /**
+     * Handle version subcommand
+     * NEW: Shows current version and update status
+     */
+    private void handleVersion(CommandSender sender) {
+        if (!sender.hasPermission("deepsleep.admin.version")) {
+            plugin.getMessageUtil().sendMessage(sender, "commands.no-permission", new HashMap<>());
+            return;
+        }
+        
+        sender.sendMessage("§b=== DeepSleep Version Info ===");
+        sender.sendMessage("§7Current: §f" + plugin.getDescription().getVersion());
+        
+        if (plugin.getUpdateChecker() != null && plugin.getUpdateChecker().hasChecked()) {
+            if (plugin.getUpdateChecker().isUpdateAvailable()) {
+                sender.sendMessage("§7Latest: §a" + plugin.getUpdateChecker().getLatestVersion() + " §e(Update Available!)");
+                
+                String repo = plugin.getConfig().getString("update-checker.github-repo", "KolenMG/Kolen-sDeepSleep");
+                sender.sendMessage("§7Download: §bhttps://github.com/" + repo + "/releases");
+            } else {
+                sender.sendMessage("§7Status: §aUp to date!");
+            }
+        } else {
+            sender.sendMessage("§7Status: §7Checking...");
+            sender.sendMessage("§7Tip: Wait a few seconds and run the command again");
+        }
+    }
+    
+    /**
      * Send usage message
      */
     private void sendUsage(CommandSender sender, String label) {
@@ -202,6 +231,7 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage("§7/" + label + " skip [world] §8- §fForce night skip");
         sender.sendMessage("§7/" + label + " cancel [world] §8- §fCancel night skip");
         sender.sendMessage("§7/" + label + " debug §8- §fToggle debug mode");
+        sender.sendMessage("§7/" + label + " version §8- §fCheck plugin version");
     }
     
     @Override
@@ -211,7 +241,7 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
         }
         
         if (args.length == 1) {
-            List<String> subCommands = Arrays.asList("reload", "status", "skip", "cancel", "debug");
+            List<String> subCommands = Arrays.asList("reload", "status", "skip", "cancel", "debug", "version");
             return subCommands.stream()
                     .filter(sub -> sub.startsWith(args[0].toLowerCase()))
                     .collect(Collectors.toList());
